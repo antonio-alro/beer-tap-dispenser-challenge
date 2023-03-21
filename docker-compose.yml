@@ -1,0 +1,30 @@
+services:
+  ruby-skeleton-db:
+    image: postgres:13.4-alpine
+    volumes:
+      - rv-volume-ror:/var/lib/postgresql/data
+    environment:
+      POSTGRES_PASSWORD: password
+    networks:
+      internal-net:
+
+  ruby-skeleton-api:
+    build: .
+    command: bash -c "rm -f tmp/pids/server.pid && bundle exec rails s -p 3000 -b '0.0.0.0'"
+    volumes:
+      - .:/myapp
+    ports:
+      - "3000:3000"
+    depends_on:
+      - ruby-skeleton-db
+    links:
+      - ruby-skeleton-db
+    networks:
+      internal-net:
+
+volumes:
+  rv-volume-ror:
+
+networks:
+  internal-net:
+    name: rv-skeleton-ror
