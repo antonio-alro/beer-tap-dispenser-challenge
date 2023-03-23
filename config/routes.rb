@@ -4,4 +4,6 @@ Rails.application.routes.draw do
       resources :ping, only: [:index]
     end
   end
+
+  resources :dispensers, path: 'dispenser', controller: 'api/v1/dispensers', only: :create
 end

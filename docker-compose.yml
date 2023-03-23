@@ -21,6 +21,8 @@ services:
       - ruby-skeleton-db
     networks:
       internal-net:
+    stdin_open: true
+    tty: true
 
 volumes:
   rv-volume-ror:
