@@ -39,7 +39,7 @@ RSpec.describe DispenserRepository, type: :repository do
   end
 
   describe '#find_by_id' do
-    context 'when the record raises an exception on create' do
+    context 'when the record raises an exception' do
       it 'raises a NOT FOUND exception' do
         fake_record_klass = self.class::FakeExceptionDispenserRecord
 
@@ -48,7 +48,7 @@ RSpec.describe DispenserRepository, type: :repository do
       end
     end
 
-    context 'when the record does not raise an exception on create' do
+    context 'when the record does not raise an exception' do
       it 'return a dispenser entity instance' do
         dispenser_record = DispenserRecord.new(id: '1234', flow_volume: 0.055, status: DispenserEntity::CLOSE_STATUS)
         fake_record_klass = self.class::FakeDispenserRecord.with_dispenser(dispenser_record)

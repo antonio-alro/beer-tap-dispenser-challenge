@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe Usages::CreateUsageService, type: :service do
+RSpec.describe Usages::GetInProgressUsageService, type: :service do
   let(:usage_entity) do
     UsageEntity.new(id: '123e4567-e89b-12d3-a456-426614174000',
                     dispenser_id: '765e4321-e89b-12d3-a456-426610184111',
@@ -14,26 +14,18 @@ RSpec.describe Usages::CreateUsageService, type: :service do
   let(:opened_at) { Time.current }
 
   describe '#call' do
-    it 'calls repository method to create the usage record' do
+    it 'calls repository method to get the expected usage record' do
       fake_usage_repository = self.class::FakeUsageRepository.with_usage(usage_entity)
-      service = described_class.new(dispenser_id: 'id',
-                                    opened_at: opened_at,
-                                    flow_volume: 0.055,
-                                    usage_repository: fake_usage_repository)
+      service = described_class.new(dispenser_id: 'fake_id', usage_repository: fake_usage_repository)
 
-      expect(service.usage_repository).to receive(:create)
-        .with(dispenser_id: 'id', opened_at: opened_at, flow_volume: 0.055)
-        .and_call_original
+      expect(service.usage_repository).to receive(:find_in_progress_usage).with(dispenser_id: 'fake_id').and_call_original
 
       service.call
     end
 
-    it 'returns the usage has been created' do
+    it 'returns the expected dispenser' do
       fake_usage_repository = self.class::FakeUsageRepository.with_usage(usage_entity)
-      service = described_class.new(dispenser_id: 'id',
-                                    opened_at: opened_at,
-                                    flow_volume: 0.055,
-                                    usage_repository: fake_usage_repository)
+      service = described_class.new(dispenser_id: 'fake_id', usage_repository: fake_usage_repository)
 
       expect(service.call).to eq(usage_entity)
     end
@@ -47,7 +39,7 @@ RSpec.describe Usages::CreateUsageService, type: :service do
       self
     end
 
-    def self.create(*)
+    def self.find_in_progress_usage(*)
       @@usage
     end
   end
