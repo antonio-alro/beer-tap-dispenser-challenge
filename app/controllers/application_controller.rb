@@ -4,7 +4,6 @@ class ApplicationController < ActionController::API
   end
 
   rescue_from RecordNotFoundError do |e|
-    debugger
     error_response(status: e.status)
   end
 
