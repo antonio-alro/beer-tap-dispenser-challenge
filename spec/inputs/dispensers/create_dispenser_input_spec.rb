@@ -19,7 +19,7 @@ RSpec.describe Dispensers::CreateDispenserInput, type: :input do
         { flow_volume: 0.057 }
       end
 
-      it 'returns the expected category id' do
+      it 'returns the expected flow_volume' do
         expect(input.flow_volume).to eq(0.057)
       end
     end

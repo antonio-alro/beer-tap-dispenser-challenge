@@ -13,7 +13,7 @@ RSpec.describe Dispensers::CloseUseCase, type: :use_case do
     { dispenser_id: '123e4567-e89b-12d3-a456-426614174000', updated_at: updated_at }
   end
 
-  describe '#call' do
+  describe '#perform' do
     context 'when the dispenser is not found' do
       it 'raises a custom error' do
         fake_input = self.class::FakeUpdateStatusInput.new(dispenser_params: input_params)

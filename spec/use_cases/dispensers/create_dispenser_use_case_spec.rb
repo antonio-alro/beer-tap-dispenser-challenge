@@ -9,7 +9,7 @@ RSpec.describe Dispensers::CreateDispenserUseCase, type: :use_case do
                         updated_at: 2.days.ago)
   end
 
-  describe '#call' do
+  describe '#perform' do
     it 'calls service to create the dispenser record' do
       fake_input = self.class::FakeInput.new
       fake_create_dispenser_service = self.class::FakeCreateDispenserService.with_dispenser(dispenser_entity)

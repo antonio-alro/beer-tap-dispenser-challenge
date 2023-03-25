@@ -95,6 +95,21 @@ RSpec.describe UsageRepository, type: :repository do
     end
   end
 
+  describe '#all_by_dispenser' do
+    it 'return a collection of dispenser entity instances' do
+      opened_at = Time.current
+      usage_record = UsageRecord.new(dispenser_id: 'dispenser_id', opened_at: opened_at, flow_volume: 0.055)
+      fake_record_klass = self.class::FakeCollectionUsageRecord.with_usages([usage_record])
+      fake_domain_factory = self.class::FakeDomainFactory
+
+      expect(fake_record_klass).to receive(:where).with(dispenser_id: 'dispenser_id').and_call_original
+      expect(fake_record_klass).to receive(:order).with(:created_at).and_call_original
+      expect(fake_domain_factory).to receive(:for).with(usage_record).and_call_original
+
+      usage_repository.all_by_dispenser(dispenser_id: 'dispenser_id', record_klass: fake_record_klass, domain_factory: fake_domain_factory)
+    end
+  end
+
   class self::FakeExceptionUsageRecord
     def self.create!(*)
       raise ActiveRecord::RecordInvalid
@@ -119,6 +134,23 @@ RSpec.describe UsageRepository, type: :repository do
 
     def self.find_by!(*)
       @@usage
+    end
+  end
+
+  class self::FakeCollectionUsageRecord
+    attr_reader :usages
+
+    def self.with_usages(usages)
+      @@usages = usages
+      self
+    end
+
+    def self.where(*)
+      self
+    end
+
+    def self.order(*)
+      @@usages
     end
   end
 

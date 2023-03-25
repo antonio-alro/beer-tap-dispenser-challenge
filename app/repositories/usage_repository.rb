@@ -21,4 +21,12 @@ class UsageRepository < BaseRepository
 
     { usage: domain_factory.for(usage_record), errors: usage_record.errors }
   end
+
+  def self.all_by_dispenser(dispenser_id:, record_klass: UsageRecord, domain_factory: DomainFactories::UsageFactory)
+    usage_records = record_klass.where(dispenser_id: dispenser_id).order(:created_at)
+
+    usage_records.map do |usage_record|
+      domain_factory.for(usage_record)
+    end
+  end
 end

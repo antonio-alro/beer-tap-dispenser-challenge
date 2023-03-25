@@ -11,7 +11,7 @@ module Usages
     def call
       return if started_at.nil? || ended_at.nil? || flow_volume.nil?
 
-      total_spent
+      total_spent.to_f
     end
 
     private

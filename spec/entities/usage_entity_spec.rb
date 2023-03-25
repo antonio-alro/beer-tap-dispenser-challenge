@@ -29,4 +29,12 @@ RSpec.describe UsageEntity, type: :entity do
   specify { expect(domain_entity.total_spent).to eq(15.238) }
   specify { expect(domain_entity.created_at).to eq(created_at) }
   specify { expect(domain_entity.updated_at).to eq(updated_at) }
+
+  describe '#estimated_total_spent=' do
+    it 'sets the proper estimated_total_spent' do
+      domain_entity.estimated_total_spent = 10.5
+
+      expect(domain_entity.estimated_total_spent).to eq(10.5)
+    end
+  end
 end
