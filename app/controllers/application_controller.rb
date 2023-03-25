@@ -3,6 +3,11 @@ class ApplicationController < ActionController::API
     error_response(status: e.status)
   end
 
+  rescue_from RecordNotFoundError do |e|
+    debugger
+    error_response(status: e.status)
+  end
+
   rescue_from InvalidDispenserStatusChangeError do |e|
     error_response(status: e.status)
   end

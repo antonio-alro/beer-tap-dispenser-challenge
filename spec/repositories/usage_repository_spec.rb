@@ -96,13 +96,20 @@ RSpec.describe UsageRepository, type: :repository do
   end
 
   describe '#all_by_dispenser' do
+    context 'when the dispenser does not exists' do
+      it 'raises a custom error' do
+        expect { usage_repository.all_by_dispenser(dispenser_id: 'dispenser_id') }.to raise_error(RecordNotFoundError)
+      end
+    end
+
     it 'return a collection of dispenser entity instances' do
       opened_at = Time.current
       usage_record = UsageRecord.new(dispenser_id: 'dispenser_id', opened_at: opened_at, flow_volume: 0.055)
-      fake_record_klass = self.class::FakeCollectionUsageRecord.with_usages([usage_record])
+      fake_record_klass = self.class::FakeDispenserRecord.with_usages([usage_record])
       fake_domain_factory = self.class::FakeDomainFactory
 
-      expect(fake_record_klass).to receive(:where).with(dispenser_id: 'dispenser_id').and_call_original
+      expect(fake_record_klass).to receive(:find).with('dispenser_id').and_call_original
+      expect(fake_record_klass).to receive(:usages).and_call_original
       expect(fake_record_klass).to receive(:order).with(:created_at).and_call_original
       expect(fake_domain_factory).to receive(:for).with(usage_record).and_call_original
 
@@ -137,7 +144,13 @@ RSpec.describe UsageRepository, type: :repository do
     end
   end
 
-  class self::FakeCollectionUsageRecord
+  class self::FakeExceptionDispenserRecord
+    def self.find(*)
+      raise ActiveRecord::RecordNotFound
+    end
+  end
+
+  class self::FakeDispenserRecord
     attr_reader :usages
 
     def self.with_usages(usages)
@@ -145,7 +158,11 @@ RSpec.describe UsageRepository, type: :repository do
       self
     end
 
-    def self.where(*)
+    def self.find(*)
+      self
+    end
+
+    def self.usages
       self
     end
 

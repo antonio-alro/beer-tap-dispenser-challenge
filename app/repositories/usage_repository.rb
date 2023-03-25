@@ -22,8 +22,12 @@ class UsageRepository < BaseRepository
     { usage: domain_factory.for(usage_record), errors: usage_record.errors }
   end
 
-  def self.all_by_dispenser(dispenser_id:, record_klass: UsageRecord, domain_factory: DomainFactories::UsageFactory)
-    usage_records = record_klass.where(dispenser_id: dispenser_id).order(:created_at)
+  def self.all_by_dispenser(dispenser_id:, record_klass: DispenserRecord, domain_factory: DomainFactories::UsageFactory)
+    usage_records = begin
+      record_klass.find(dispenser_id).usages.order(:created_at)
+    rescue ActiveRecord::RecordNotFound
+      raise RecordNotFoundError
+    end
 
     usage_records.map do |usage_record|
       domain_factory.for(usage_record)

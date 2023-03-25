@@ -15,7 +15,11 @@ class DispenserRepository < BaseRepository
   end
 
   def self.find_by_id(id, record_klass: DispenserRecord, domain_factory: DomainFactories::DispenserFactory)
-    dispenser_record = record_klass.find(id)
+    dispenser_record = begin
+      record_klass.find(id)
+    rescue ActiveRecord::RecordNotFound
+      raise RecordNotFoundError
+    end
 
     domain_factory.for(dispenser_record)
   end

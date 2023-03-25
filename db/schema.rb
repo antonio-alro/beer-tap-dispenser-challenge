@@ -28,7 +28,7 @@ ActiveRecord::Schema[7.0].define(version: 2023_03_22_115138) do
     t.datetime "opened_at", null: false
     t.datetime "closed_at"
     t.decimal "flow_volume", precision: 10, scale: 6, null: false
-    t.decimal "total_spent", precision: 10, scale: 2
+    t.decimal "total_spent", precision: 10, scale: 3
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["closed_at"], name: "index_usages_on_closed_at"

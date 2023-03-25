@@ -44,7 +44,7 @@ RSpec.describe DispenserRepository, type: :repository do
         fake_record_klass = self.class::FakeExceptionDispenserRecord
 
         expect { dispenser_repository.find_by_id('id', record_klass: fake_record_klass) }
-          .to raise_error(ActiveRecord::RecordNotFound)
+          .to raise_error(RecordNotFoundError)
       end
     end
 
