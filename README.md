@@ -7,6 +7,10 @@
 ## Table of contents
 - [Description](#description)
 - [Architecture](#architecture)
+  * [Models](#models)
+  * [Repositories](#repositories)
+  * [Services](#services)
+  * [Use cases](#use-cases)
   * [Implementation decisions](#implementation-decisions)
   * [Improvements](#improvements)
 - [Getting started](#getting-started)
