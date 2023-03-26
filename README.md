@@ -1,71 +1,133 @@
 # Beer tap dispenser API
 
-Anyone who goes to a festival at least one time knows how difficult is to grab some drinks from the bars. They are
-crowded and sometimes queues are longer than the main artist we want to listen!
-
-That's why some promoters are developing an MVP for new festivals. Bar counters where you can go and serve yourself
-a beer. This will help make the waiting time much faster, making festival attendees happier and concerts even more
-crowded, avoiding delays!
-
 <p align="center">
     <img alt="Tap dispenser" width="300px" src="./.github/assets/dispenser.png" />
 </p>
 
-## How it works?
-
-The aim of this API is to allow organizers to set up these bar counters allowing the attendees self-serving.
-
-So, once an attendee wants to drink a beer they just need to open the tap! The API will start counting how much flow
-comes out and, depending on the price, calculate the total amount of money.
-
-You could find the whole description of the API in the [OpenAPI description file](/api.spec.yaml) and send request to a
-mock server with [this URL](https://rviewer.stoplight.io/docs/beer-tap-dispenser/juus8uwnzzal5-beer-tap-dispenser)
-
-### Workflow
-
-The workflow of this API is as follows:
-
-1. Admins will **create the dispenser** by specifying a `flow_volume`. This config will help to know how many liters of
-   beer come out per second and be able to calculate the total spend.
-2. Every time an attendee **opens the tap** of a dispenser to puts some beer, the API will receive a change on the
-   corresponding dispenser to update the status to `open`. With this change, the API will start counting how much time
-   the tap is open and be able to calculate the total price later
-3. Once the attendee **closes the tap** of a dispenser, as the glass is full of beer, the API receives a change on the
-   corresponding dispenser to update the status to `close`. At this moment, the API will stop counting and mark it
-   closed.
-
-At the end of the event, the promoters will want to know how much money they make with this new approach. So, we have to
-provide some information about how many times a dispenser was used, for how long, and how much money was made with each
-service.
-
-> ⚠️ The promoters could check how much money was spent on each dispenser while an attendee is taking beer!
-> So you have to control that by calculating the time diff between the tap opening and the request time
+## Table of contents
+- [Description](#description)
+- [Architecture](#architecture)
+  * [Implementation decisions](#implementation-decisions)
+  * [Improvements](#improvements)
+- [Getting started](#getting-started)
+  * [Technologies](#technologies)
+  * [How to run the app](#how-to-run-the-app)
+  * [How to run the test suite](#how-to-run-the-test-suite)
 
 ---
 
-## What are we looking for?
+## Description
 
-* **A well-designed solution and architecture.** Avoid duplication, extract re-usable code
-  where makes sense. We want to see that you can create an easy-to-maintain codebase.
-* **Test as much as you can.** One of the main pain points of maintaining other's code
-  comes when it does not have tests. So try to create tests covering, at least, the main classes.
-* **Document your decisions**. Try to explain your decisions, as well as any other technical requirement (how to run the
-  API, external dependencies, etc ...)
+Within the [CHALLENGE-EXPLANATION](CHALLENGE-EXPLANATION.md) you can find the requirements for the **Beer tap dispenser API**.
 
-## How to submit your solution
+---
 
-* Push your code to the `devel` branch - we encourage you to commit regularly to show your thinking process was.
-* **Create a new Pull Request** to `main` branch & **merge it**.
+## Architecture
 
-Once merged you **won't be able to change or add** anything to your solution, so double-check that everything is as
-you expected!
+The API has been implemented following an hexagonal architecture to build a better software reducing coupling and dependencies. Therefore, we have the following layers in our application:
 
-Remember that **there is no countdown**, so take your time and implement a solution that you are proud!
+- Controllers
+- Application
+  - Use cases
+  - Inputs for each use case
+- Domain
+  - Entities
+  - Services
+  - Repositories
+- Database + ORM
 
---- 
+### Models
+This layer has the logic to communicate with the database. We have the following models in our application:
+- `DispenserRecord`
+- `UsageRecord`
 
-<p align="center">
-  If you have any feedback or problem, <a href="mailto:help@rviewer.io">let us know!</a> 🤘
-  <br><br>
-  Made with ❤️ by <a href="https://rviewer.io">Rviewer</a>
-</p>
+### Repositories
+This layer has the logic to use the records. Our domain services use the repositories to communicate with the ORM layer. We have the following repositories in our API:
+- `BaseRepository`.
+  It implements some methods to do the most common operations of the ORM.
+- `DispenserRepository`
+  It implements some methods to create, update and find a `DispenserRecord`.
+- `UsageRepository`
+  It implements some methods to create, update and find an `UsageRecord`.
+
+### Services
+This layer has a set of services which implement the business logic of our API application. For example:
+- A service to create a dispenser.
+- A service to update a dispenser.
+- A service to find a dispenser given an ID.
+- A service to create an usage.
+- A service to update an usage.
+- A service to find the usage that is in progress in a certain moment.
+- A service to get the usages for a certain dispensers.
+- A service to get the total spent for a certain usage.
+- A service to get the spending for a certain dispenser.
+
+### Use cases
+This layer has a set of use cases which support the endpoints of our API application. For example:
+- An use case to create a dispenser.
+- An use case to open a dispenser.
+- An use case to close a dispenser.
+- An use case to get the spending for a certain dispenser.
+
+### Implementation decisions
+
+1. Use of UUIDs as primary key for database tables.
+
+   It has advantages and disadvatages but we decided to use them for these reasons:
+    - It was a requirement in the API for the responses and URLs
+    - In order to avoid calculating the UUID when a record is created in the database
+
+2. Size and precision of `string` and `decimal` columns.
+
+   It is a balance between supporting the API requirements and saving space in the database.
+
+3. We added some indexes in DB to optimase the searchs over these columns.
+   - Table `dispensers`: `created_at`
+   - Table `usages`: `created_at`
+   - Table `usages`: `closed_at`
+
+4. We persisted the **flow volume** both in the `dispensers` and the `usages` tables.
+   - In case the dispenser `flow volume` could change in the future, the usages need to know the flow volume when the dispenser was used.
+
+5. We persisted a field `status` in the `dispensers` table to be able to check it easily and quickly.
+
+6. API responses. We decided to build the endpoints responses implementing a basic and custom JSON serialization instead of using a gem to do it.
+
+
+### Improvements
+
+- Add some integration tests for the requests we have in our API.
+- Handle the errors in a better way to give the client further details about what happened.
+- Improve the serializers layer to build.
+- Configure Sidekiq and a Redis server so that Sidekiq is able to run background jobs.
+
+---
+
+## Getting started
+
+### Technologies
+
+* [Ruby](https://www.ruby-lang.org/en/) (Version: `3.1.0`)
+* [Ruby on Rails](https://rubyonrails.org/) (Version: `7.0.4.2`)
+* [PostgreSQL](https://www.postgresql.org/)
+* [MiniTest](https://github.com/minitest/minitest)
+* [Docker](https://www.docker.com/)
+* [Make](https://www.gnu.org/software/make/manual/make.html)
+* [Rspec](https://github.com/rspec/rspec-rails) (Version: `6.0.1`)
+
+
+### How to run the app
+
+Within the [Makefile](Makefile) you can handle the entire flow to get everything up & running:
+
+1. Install `make` on your computer, if you do not already have it.
+2. Build the application: `make build`
+3. Start the application: `make up`
+
+
+### How to run the test suite
+
+As we use Rspec for unit testing, you can run the whole test suite through the following command:
+```shell
+docker compose run -e RAILS_ENV=development --rm ruby-skeleton-api sh -c "bundle exec rspec spec/"
+```
