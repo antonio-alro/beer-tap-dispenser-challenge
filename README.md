@@ -28,7 +28,9 @@ Within the [CHALLENGE-EXPLANATION](CHALLENGE-EXPLANATION.md) you can find the re
 
 ## Architecture
 
-The API has been implemented following an hexagonal architecture to build a better software reducing coupling and dependencies. Therefore, we have the following layers in our application:
+The API has been implemented with a layered architecture, following the principles of clean architecture to build better software reducing coupling and dependencies.
+In addition, I have used some concepts from hexagonal architecture and DDD (Domain Driven Development).
+Therefore, we have the following layers in our application:
 
 - Controllers
 - Application
@@ -39,6 +41,10 @@ The API has been implemented following an hexagonal architecture to build a bett
   - Services
   - Repositories
 - Database + ORM
+
+<p align="center">
+  <img alt="Architecture" width="500px" src="./docs/assets/layered_architecture.png" />
+</p>
 
 ### Models
 This layer has the logic to communicate with the database. We have the following models in our application:
@@ -74,7 +80,7 @@ This layer has a set of use cases which support the endpoints of our API applica
 - An use case to get the spending for a certain dispenser.
 
 ### Implementation decisions
-
+In this section, you can find some decisions that were made during the development:
 1. Use of UUIDs as primary key for database tables.
 
    It has advantages and disadvatages but we decided to use them for these reasons:
@@ -99,18 +105,17 @@ This layer has a set of use cases which support the endpoints of our API applica
 
 
 ### Improvements
-
+In this section, you can find a list of improvements that can be made in the future:
 - Add some integration tests for the requests we have in our API.
 - Handle the errors in a better way to give the client further details about what happened.
 - Improve the serializers layer to build.
-- Configure Sidekiq and a Redis server so that Sidekiq is able to run background jobs.
+- Add Sidekiq and a Redis server so that Sidekiq is able to run background jobs.
 
 ---
 
 ## Getting started
 
 ### Technologies
-
 * [Ruby](https://www.ruby-lang.org/en/) (Version: `3.1.0`)
 * [Ruby on Rails](https://rubyonrails.org/) (Version: `7.0.4.2`)
 * [PostgreSQL](https://www.postgresql.org/)
@@ -121,7 +126,6 @@ This layer has a set of use cases which support the endpoints of our API applica
 
 
 ### How to run the app
-
 Within the [Makefile](Makefile) you can handle the entire flow to get everything up & running:
 
 1. Install `make` on your computer, if you do not already have it.
@@ -130,7 +134,6 @@ Within the [Makefile](Makefile) you can handle the entire flow to get everything
 
 
 ### How to run the test suite
-
 As we use Rspec for unit testing, you can run the whole test suite through the following command:
 ```shell
 docker compose run -e RAILS_ENV=development --rm ruby-skeleton-api sh -c "bundle exec rspec spec/"
